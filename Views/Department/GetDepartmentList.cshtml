@@ -1,0 +1,50 @@
+﻿@model IEnumerable<WebApplication.Models.Department>
+
+
+<br /><br />
+ 
+<h4>Department List</h4>
+<table class="table table-bordered table-hover table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a class="editBtn" data-id="@item.DepartmentId">Edit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<script>
+    $('.editBtn').click(function () {
+
+        var _id = $(this).attr('data-id');
+
+        $.ajax({
+            type: 'GET',
+            url: '/Department/GetDepartmentForm',
+            data: { id: _id },
+            success: function (response) {
+
+                $('#departmentFormDiv').html(response);
+
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+
+    }); 
+</script>

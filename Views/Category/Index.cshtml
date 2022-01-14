@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Category List</h1>
+
+@* If, for, foreach, variable *@
+
+<a asp-controller="Category" asp-action="CreateOrEdit" class="btn btn-primary">Create</a>
+
+<table class="table table-bordered table-hover table-striped">
+  <thead>
+      <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>
+              Action
+          </th>
+      </tr>
+  </thead>
+  <tbody>
+      @foreach (var item in ViewBag.CategoryList)
+      {
+          <tr>
+              <td>@item.CategoryId</td>
+              <td>@item.Name</td>
+              <td>
+                  <a asp-controller="Category" asp-action="CreateOrEdit" asp-route-id="@item.CategoryId">Edit</a>
+              </td>
+          </tr>
+      }
+
+  </tbody>
+</table>
+

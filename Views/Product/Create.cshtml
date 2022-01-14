@@ -1,0 +1,81 @@
+﻿
+@model WebApplication.Models.Product
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+           
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SalePrice" class="control-label"></label>
+                <input asp-for="SalePrice" class="form-control" />
+                <span asp-validation-for="SalePrice" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Qty" class="control-label"></label>
+                <input asp-for="Qty" class="form-control" />
+                <span asp-validation-for="Qty" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+              
+                <select class="form-control" id="categorys">
+                     <option>--Please Select--</option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $.ajax({
+            type: 'GET',
+            url: '/Category/GetCategorys',
+            success: function (result) {
+                console.log(result);
+
+                $('#categorys').html('');
+                $('#categorys').html('<option>---Please Select---</option>');
+                var html;
+
+                for (var i = 0; i < result.length; i++) {
+                    html += '<option value="'+ result[i].categoryId +'"> "'+ result[i].name +'"</option>'
+                }
+
+                $('#categorys').append(html);
+              
+
+            },
+            error: function (error) {
+
+                alert(error);
+            }
+        });
+
+
+    });
+</script>

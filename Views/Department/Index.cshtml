@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Department</h3>
+
+
+<div id="departmentFormDiv">
+
+</div>
+
+<div id="departmentListDiv">
+
+</div>
+
+<script>
+    //1. Get and Load Department Form
+    $.ajax({
+        type: 'GET',
+        url: '/Department/GetDepartmentForm',
+        success: function (response) {
+
+            $('#departmentFormDiv').html(response);
+        },
+        error: function (error) {
+            alert(error);
+        }
+    });
+
+
+    //2. Get and Load Department List
+    $.ajax({
+        type: 'GET',
+        url: '/Department/GetDepartmentList',
+        success: function (response) {
+
+            $('#departmentListDiv').html(response);
+        },
+        error: function (error) {
+            alert(error);
+        }
+    });
+
+</script>

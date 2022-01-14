@@ -1,0 +1,265 @@
+﻿@model WebApplication.Models.AppUser
+
+@{
+    ViewData["Title"] = "CreateOrEdit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>App Users</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateOrEdit" enctype="multipart/form-data">
+
+            <input type="hidden" asp-for="UserId" />
+
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CityId" class="control-label"></label>
+                <select class="form-control" asp-for="CityId" asp-items=" Model.CityList">
+                    <option>-- Select --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Gender</label>
+                @foreach (var item in Model.GenderList)
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="GenderId" value="@item.Value">
+                        <label class="form-check-label" for="inlineRadio1">@item.Text</label>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Interest</label>
+                @for (int i = 0; i < Model.InterestList.Count(); i++)
+                {
+                    <div class="form-check form-check-inline">
+                        <input type="hidden" asp-for="@Model.InterestList[i].Value" />
+                        <input class="form-check-input" type="checkbox" asp-for="@Model.InterestList[i].Selected">
+                        <label class="form-check-label">@Model.InterestList[i].Text</label>
+                    </div>
+                }
+            </div>
+            <br /><br />
+            <div class="form-group">
+                <label class="control-label">Profile</label>
+
+                <input type="file" multiple name="profileImage" id="profileImage" class="visually-hidden" onchange="userActions.uploadImage()" />
+                <input type="hidden" asp-for="ImageId" value="" />
+                @*<img src="#" id="uploadedImage" width="250" />*@
+
+                <div id="picturesArea">
+                    <div id="selectImage" class="imgItem" onclick="userActions.selectImage()">
+                        <span class="fa fa-plus"></span>
+                    </div>
+                </div>
+
+            </div>
+            <br /><br />
+             <div class="form-group">
+                 <label class="control-label">PDF</label>
+                 <input type="file" name="pdf" id="pdf" onchange="userActions.uploadPdf()" />
+                @* <input type="hidden" name="pdfId" id="pdfId" />*@
+             </div>
+            <br /><br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="imageTemplate">
+    <div class="imgItem">
+        <img src="" class="img-responsive" height="120" width="150" />
+        <i class="img-remove-icon fas fa-times" onclick="userActions.removeImage(this)" data-imageId="" style="display: none; position: absolute;top: 2px;right:  4px;"></i>
+    </div>
+
+</div>
+
+// find, filter, child
+// parent, closest('#imageTemplate')
+
+
+<style>
+    #picturesArea {
+        width: 600px;
+        background-color: #e9e9e9;
+        white-space: nowrap;
+        padding: 15px 5px;
+        display: flex;
+        overflow: auto;
+        border: 1px solid #ddd;
+    }
+
+        #picturesArea .imgItem {
+            height: 120px;
+            width: 150px;
+            min-width: 150px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto 5px;
+            background-color: #ffffff;
+            border: 1px solid #cacaca;
+            cursor: pointer;
+            margin-right: 10px;
+            box-shadow: 3px 5px 6px #b5b3b2;
+            position: relative;
+            overflow: hidden;
+        }
+
+            #picturesArea .imgItem span {
+                text-align: center;
+                font-size: 16px;
+            }
+</style>
+<script>
+
+    var userActions = {
+        selectImage: function () {
+            $('#profileImage').trigger('click');
+        },
+        uploadImage: function () {
+            debugger;
+            var file = document.getElementById('profileImage').files;
+
+            //3 --> 1
+            for (var i = 0; i < file.length; i++) {
+
+                var filename = file[i].name;
+                var extension = filename.split('.').pop();
+
+                var validExtensions = ["png", "jpg", "jpeg"];
+                var isExtensionValid = true;
+
+                if ($.inArray(extension, validExtensions) == -1)
+                {
+                    isExtensionValid = false;
+                    break;
+                }
+            }
+            //fileName
+            
+            debugger;
+            if (isExtensionValid) {
+                var formData = new FormData();
+
+                for (var i = 0; i < file.length; i++)
+                {
+                    formData.append("Image", file[i]);
+                }
+
+                // 2nd
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("BulkSaveUpload", "AppUser")',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response != undefined) {
+
+                            debugger;
+                            for (var i = 0; i < response.length; i++) {
+
+                                console.log(response[i].filePath);
+
+                                $('#ImageId').val(response[i].imageId); //3
+
+                                debugger;
+                                var imgHTML = $('#imageTemplate').clone();
+
+                                imgHTML.find('img').attr('src', "data:image/png;base64," + response[i].filePath);
+                                imgHTML.find('i').attr('data-imageId', response[i].imageId)
+                                                             .css('display', 'block');
+
+                                $('#picturesArea').append(imgHTML.html());
+                            }
+
+                           
+
+                            //jquery --> copy (clone)
+                            
+
+                       
+                            //$('#uploadedImage').attr('src', response.filePath);
+                        }
+                        else {
+                            alert('Something went wrong.');
+                        }
+
+
+                    },
+                    error: function (error) { alert(error); }
+                });
+            }
+            else {
+                alert('Extension is not valid');
+            }
+            //extension
+            //console.log(file);
+        },
+        removeImage: function (element) {
+
+            debugger;
+
+            //remove image from database/local-drive --> ajax request
+            //remove image from picture area
+            var imgId = $(element).attr('data-imageId');
+
+            $(element).closest('div').remove();
+            //$('#selectImage').removeClass('visually-hidden');
+            //alert(imgId);
+        },
+        uploadPdf: function () {
+            var file = document.getElementById('pdf').files[0];
+
+            var filename = file.name;
+            var extension = filename.split('.').pop();
+
+            var validExtensions = ["pdf"];
+            var isExtensionValid = true;
+
+            if ($.inArray(extension, validExtensions) == -1) { isExtensionValid = false; }
+
+            if (isExtensionValid) {
+                var formData = new FormData();
+                formData.append("Pdf", file);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("BulkSaveUpload", "AppUser")',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response != undefined) {
+
+                            $('#ImageId').val(response.imageId);
+                        }
+                        else {
+                            alert('Something went wrong.');
+                        }
+
+
+                    },
+                    error: function (error) { alert(error); }
+                });
+
+
+            }
+        }
+    };
+
+
+
+</script>
